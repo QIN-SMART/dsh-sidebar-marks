@@ -49,6 +49,11 @@ dsh plugin --profile web add "link:/absolute/path/to/dsh-sidebar-marks"
 dsh plugin --profile web add dsh-sidebar-marks
 ```
 
+> **Within 24 hours of a release**: pnpm 11 defaults to `minimumReleaseAge=1440` minutes and
+> skips versions that young, so `add dsh-sidebar-marks` can fail with `No matching version found`.
+> Pin the version instead - pnpm then records it in the profile's `minimumReleaseAgeExclude`
+> and installs it: `dsh plugin --profile web add dsh-sidebar-marks@0.1.0`.
+
 Then reload the browser page. No host restart is needed for a package the running host has already resolved; a plugin that is new to the process is picked up when the profile recomposes, and their client bundle loads on the next page load.
 
 Uninstall with `dsh plugin --profile web remove dsh-sidebar-marks`.
