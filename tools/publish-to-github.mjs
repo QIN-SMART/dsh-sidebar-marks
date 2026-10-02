@@ -21,6 +21,11 @@ const REPO = 'dsh-sidebar-marks';
 const DESCRIPTION = "DeepSeek Harness plugin: sidebar conversation marks — row tint, colored dot, per-conversation title size";
 const TOPICS = ['deepseek-harness', 'dsh', 'dsh-plugin', 'sidebar', 'conversation'];
 const DRY = process.argv.includes('--dry-run');
+// --release[=vX.Y.Z]：顺带打 tag 并建 GitHub Release（默认取 package.json 的 version）
+const releaseArg = process.argv.find((a) => a === '--release' || a.startsWith('--release='));
+const RELEASE_TAG = releaseArg && releaseArg.includes('=')
+  ? releaseArg.split('=')[1]
+  : (releaseArg ? `v${JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version}` : null);
 const TOKEN = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '';
 
 const SKIP = new Set(['.git', '.tmp', 'node_modules', '.DS_Store']);
@@ -171,5 +176,38 @@ console.log(`✓ ${branch} 已更新到 ${commit.sha.slice(0, 7)}`);
 await api('PUT', `/repos/${OWNER}/${REPO}/topics`, { names: TOPICS });
 console.log(`✓ topics: ${TOPICS.join(', ')}`);
 
+// 6) 可选：tag + Release（Release 正文取 CHANGELOG 里对应版本那一段）
+if (RELEASE_TAG) {
+  const changelog = readFileSync(join(ROOT, 'CHANGELOG.md'), 'utf8');
+  const version = RELEASE_TAG.replace(/^v/, '');
+  const start = changelog.indexOf(`## ${version}`);
+  const body = start === -1
+    ? changelog.slice(0, 1500)
+    : changelog.slice(start, (() => { const next = changelog.indexOf('\n## ', start + 1); return next === -1 ? undefined : next; })()).trim();
+
+  // 轻量 tag 指向本次提交（幂等：已存在就跳过）
+  try {
+    await api('POST', `/repos/${OWNER}/${REPO}/git/refs`, { ref: `refs/tags/${RELEASE_TAG}`, sha: commit.sha });
+    console.log(`✓ 已打 tag ${RELEASE_TAG} -> ${commit.sha.slice(0, 7)}`);
+  } catch (err) {
+    if (err.status !== 422) throw err;
+    console.log(`· tag ${RELEASE_TAG} 已存在，跳过`);
+  }
+  try {
+    const rel = await api('POST', `/repos/${OWNER}/${REPO}/releases`, {
+      tag_name: RELEASE_TAG,
+      name: RELEASE_TAG,
+      body,
+      draft: false,
+      prerelease: false
+    });
+    console.log(`✓ 已发布 Release ${rel.tag_name}: ${rel.html_url}`);
+  } catch (err) {
+    if (err.status !== 422) throw err;
+    console.log(`· Release ${RELEASE_TAG} 已存在，跳过`);
+  }
+}
+
 console.log(`\n完成：https://github.com/${OWNER}/${REPO}`);
 console.log(`别人安装：dsh plugin --profile web add github:${OWNER}/${REPO}`);
+if (!RELEASE_TAG) console.log('提示：加 --release 可以顺带打 tag 并建 Release');

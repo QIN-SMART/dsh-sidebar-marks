@@ -2,15 +2,30 @@
 
 给 DSH 左侧边栏的每个对话打标记：**整行背景的淡色底**（颜色 + 浓度自选，深色主题自动加强一档）、**最右侧或标题左侧的彩色圆点**，另可选每条对话独立的标题字号。**没打标记的对话与原生界面完全一致。**
 
-[English](README_EN.md) · 22 个自测用例 · 零运行时依赖 · CI 覆盖 Windows。
+[English](README_EN.md) · 零运行时依赖 · 自测零依赖（`node --test`）
 
-> 这个目录本身就是可以推到 GitHub 的仓库根：`package.json` 在第一层，所以别人可以一条命令装：
-> `dsh plugin --profile web add github:QIN-SMART/dsh-sidebar-marks`
+![verify](https://github.com/QIN-SMART/dsh-sidebar-marks/actions/workflows/verify.yml/badge.svg)
 
+## 安装
+
+```sh
+# 从 GitHub 装（推荐）
+dsh plugin --profile web add github:QIN-SMART/dsh-sidebar-marks
+
+# 从 npm 装（发布后）
+dsh plugin --profile web add dsh-sidebar-marks
 ```
-dsh plugin --profile web add "link:/Users/qin/Documents/test/dsh-sidebar-marks/plugin"
-# 装完刷新一次浏览器页面
+
+装完刷新一次浏览器页面即可，不需要重启 dsh web。
+
+开发本仓库时用本地链接（路径换成你自己的克隆位置）：
+
+```sh
+git clone https://github.com/QIN-SMART/dsh-sidebar-marks
+dsh plugin --profile web add "link:$PWD/dsh-sidebar-marks"
 ```
+
+仓库根就是包根（`package.json` 在第一层），所以 `github:` 与 npm 两种方式装到的都是同一个包。
 
 ## 怎么用
 
@@ -141,8 +156,10 @@ window.__dshSidebarMarks.rescan()                    // 手动重扫（正常由
 验证元数据解析（用 DSH 自己的读取器，不必起浏览器）：
 
 ```js
-import { readPluginMeta } from '/Users/qin/.nvm/versions/node/v24.19.0/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-app-boot/lib/index.js'
-readPluginMeta('dsh-sidebar-marks', 'file:///Users/qin/.dsh/profiles/web/package.json')
+// 在你本机的 DSH 安装目录里（`npm root -g`/nvm 的 node_modules 下）：
+import { readPluginMeta } from '@deepseek-ai/dsh-app-boot'
+// parentURL 指向你当前 profile 的 package.json
+readPluginMeta('dsh-sidebar-marks', new URL('file:///path/to/.dsh/profiles/web/package.json').href)
 // → { title: { en: '…', zh: '侧边栏对话标记 (dsh-sidebar-marks)' }, description: {…}, icon: 'data:image/svg+xml;base64,…' }
 ```
 
@@ -168,6 +185,20 @@ README.md README_EN.md LICENSE CHANGELOG.md .github/workflows/verify.yml
 - Topics 建议：`deepseek-harness`、`dsh`、`dsh-plugin`、`sidebar`、`conversation`
 - 原因：内置的插件市场（`@hydrogenoxide18/dsh-plugin-market`）走的是 **GitHub 仓库搜索**，默认查询 `deepseek harness plugin`、按 star 排序、每页 30 条，且**不按 topic 过滤** —— 默认列表里新仓库会排在很后面，能不能被发现主要靠描述/名称/话题命中关键词，以及用户自己搜。
 - 推送后别人一条命令：`dsh plugin --profile web add github:QIN-SMART/dsh-sidebar-marks`
+
+### 发布（维护者用）
+
+```sh
+# 1) 推到 GitHub（用 REST API，绕开时通时断的 github.com）
+GH_TOKEN=<PAT，需 repo + workflow scope> npm run publish:github -- --release
+#    --release 会顺带打 v<package.json 的 version> tag，并用 CHANGELOG 对应段落建 Release
+#    加 --dry-run 只列文件、不写任何东西
+
+# 2) 发到 npm（需要先 npm login 一次）
+npm publish
+```
+
+`workflow` scope 是必须的（仓库含 `.github/workflows/verify.yml`）；npm 那边如果开了 2FA，用 `npm publish --otp=<六位码>`。
 
 ### 若 `github.com` 连不上（只 `api.github.com` 通）
 

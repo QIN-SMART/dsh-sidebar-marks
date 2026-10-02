@@ -35,7 +35,8 @@
     "node": "^22.19.0 || >=24"
   },
   "scripts": {
-    "test": "node --test test/verify.mjs"
+    "test": "node --test test/verify.mjs",
+    "publish:github": "node tools/publish-to-github.mjs"
   },
   "repository": {
     "type": "git",

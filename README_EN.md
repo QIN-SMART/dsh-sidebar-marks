@@ -7,7 +7,9 @@ dsh plugin --profile web add github:QIN-SMART/dsh-sidebar-marks
 # then reload the browser page
 ```
 
-[中文说明](README.md)
+[中文说明](README.md) · no runtime dependencies · self test needs nothing but Node
+
+![verify](https://github.com/QIN-SMART/dsh-sidebar-marks/actions/workflows/verify.yml/badge.svg)
 
 ![Marks rendered on a 1:1 DSH sidebar mock (example data)](docs/verify-light.png)
 
@@ -66,7 +68,7 @@ Windows users: the same commands work in PowerShell (`dsh plugin --profile web a
 ## Verify
 
 ```sh
-node --test test/verify.mjs          # 24 cases, no dependencies
+node --test test/verify.mjs          # the whole suite, no dependencies
 ```
 
 The suite loads the **real** `lib/client.js` through the real `window.__ModuleLoader__.load` path on a minimal DOM stub and covers: module shape, slot registration, style tagging, row annotation idempotence and cleanup, untouched rows, archived/running degradation, hotkey and right-click, panel lifecycle, persistence round-trips, dropping foreign and legacy data, cross-tab sync, disposing everything, the "no hashed class names" CSS rule, custom colors and the zh/en copy switch.
