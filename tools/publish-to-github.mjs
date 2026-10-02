@@ -23,6 +23,7 @@ const TOPICS = ['deepseek-harness', 'dsh', 'dsh-plugin', 'sidebar', 'conversatio
 const DRY = process.argv.includes('--dry-run');
 // --release[=vX.Y.Z]：顺带打 tag 并建 GitHub Release（默认取 package.json 的 version）
 const releaseArg = process.argv.find((a) => a === '--release' || a.startsWith('--release='));
+const FORCE_TAG = process.argv.includes('--force-tag');
 const RELEASE_TAG = releaseArg && releaseArg.includes('=')
   ? releaseArg.split('=')[1]
   : (releaseArg ? `v${JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version}` : null);
@@ -185,13 +186,25 @@ if (RELEASE_TAG) {
     ? changelog.slice(0, 1500)
     : changelog.slice(start, (() => { const next = changelog.indexOf('\n## ', start + 1); return next === -1 ? undefined : next; })()).trim();
 
-  // 轻量 tag 指向本次提交（幂等：已存在就跳过）
+  // 轻量 tag 指向本次提交
+  let tagRef = null;
   try {
+    tagRef = await api('GET', `/repos/${OWNER}/${REPO}/git/ref/tags/${RELEASE_TAG}`);
+  } catch (err) {
+    if (err.status !== 404 && err.status !== 409) throw err;
+  }
+  if (!tagRef) {
     await api('POST', `/repos/${OWNER}/${REPO}/git/refs`, { ref: `refs/tags/${RELEASE_TAG}`, sha: commit.sha });
     console.log(`✓ 已打 tag ${RELEASE_TAG} -> ${commit.sha.slice(0, 7)}`);
-  } catch (err) {
-    if (err.status !== 422) throw err;
-    console.log(`· tag ${RELEASE_TAG} 已存在，跳过`);
+  } else if (tagRef.object.sha === commit.sha) {
+    console.log(`· tag ${RELEASE_TAG} 已指向本次提交，跳过`);
+  } else if (FORCE_TAG) {
+    await api('DELETE', `/repos/${OWNER}/${REPO}/git/refs/tags/${RELEASE_TAG}`);
+    await api('POST', `/repos/${OWNER}/${REPO}/git/refs`, { ref: `refs/tags/${RELEASE_TAG}`, sha: commit.sha });
+    console.log(`✓ tag ${RELEASE_TAG} 已从 ${tagRef.object.sha.slice(0, 7)} 移到 ${commit.sha.slice(0, 7)}（Release 跟着走）`);
+  } else {
+    console.log(`! tag ${RELEASE_TAG} 现指向 ${tagRef.object.sha.slice(0, 7)}，本次提交是 ${commit.sha.slice(0, 7)}；` +
+      '要把它挪过来就加 --force-tag');
   }
   try {
     const rel = await api('POST', `/repos/${OWNER}/${REPO}/releases`, {

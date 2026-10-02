@@ -1,5 +1,9 @@
 # Changelog
 
+## 未发布
+
+- 修正安装说明：pnpm 11 对**首次添加**的包会自动写入 `minimumReleaseAgeExclude`，发布当天即可安装（原文档误称会被 24 小时门槛拦下）。
+
 ## 0.1.0
 
 首个公开版本（GitHub: [QIN-SMART/dsh-sidebar-marks](https://github.com/QIN-SMART/dsh-sidebar-marks)）。

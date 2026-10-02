@@ -27,9 +27,7 @@ dsh plugin --profile web add "link:$PWD/dsh-sidebar-marks"
 
 仓库根就是包根（`package.json` 在第一层），所以 `github:` 与 npm 两种方式装到的都是同一个包。
 
-> **刚发布的 24 小时内**：pnpm 11 默认 `minimumReleaseAge=1440` 分钟，会跳过太新的版本，
-> 这时 `add dsh-sidebar-marks` 可能报 `No matching version found`。钉住版本即可（pnpm 会自动把它写进 profile 的
-> `minimumReleaseAgeExclude` 放行）：`dsh plugin --profile web add dsh-sidebar-marks@0.1.0`。
+> **关于刚发布的版本**：pnpm 11 的 `minimumReleaseAge`（默认 1440 分钟）会拦住太新的版本，但**首次添加**时它会自动把该版本写进 profile 的 `minimumReleaseAgeExclude`（并打印一行 `Added 1 entry to minimumReleaseAgeExclude`），所以发布当天就能装 —— 实测 `pnpm add dsh-sidebar-marks` 3 秒装上 0.1.0。只有显式设置了 `minimumReleaseAgeStrict: true` 才会真的被拦，那时钉版本即可：`dsh plugin --profile web add dsh-sidebar-marks@0.1.0`。
 
 ## 怎么用
 
