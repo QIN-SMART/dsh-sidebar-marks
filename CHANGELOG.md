@@ -1,8 +1,8 @@
 # Changelog
 
-## 未发布
+## 0.1.1 — 2026-10-02
 
-- 修正安装说明：pnpm 11 对**首次添加**的包会自动写入 `minimumReleaseAgeExclude`，发布当天即可安装（原文档误称会被 24 小时门槛拦下）。
+- 修正安装说明：pnpm 11 对**首次添加**的包会自动写入 `minimumReleaseAgeExclude`，发布当天即可安装（0.1.0 的文档误称会被 24 小时门槛拦下，实测 `pnpm add dsh-sidebar-marks` 3.2 秒装上了）。
 
 ## 0.1.0
 

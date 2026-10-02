@@ -1,6 +1,6 @@
 {
   "name": "dsh-sidebar-marks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mark DSH sidebar conversations with a tinted background, a colored dot at the row's end, and a per-conversation title size.",
   "icon": "./icon.svg",
   "type": "module",
