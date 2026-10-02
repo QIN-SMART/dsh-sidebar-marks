@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="侧边栏对话标记">
+  <rect x="2" y="3" width="28" height="26" rx="7" fill="#e9f0fd"/>
+  <rect x="6.5" y="8" width="4.5" height="4.5" rx="1.6" fill="#b9cdf3"/>
+  <rect x="13" y="8.6" width="11" height="3.4" rx="1.7" fill="#b9cdf3"/>
+  <rect x="6.5" y="14.6" width="19" height="7.6" rx="3.2" fill="#4176e6" opacity="0.16"/>
+  <circle cx="20.6" cy="18.4" r="2.5" fill="#4176e6"/>
+  <rect x="6.5" y="24.2" width="4.5" height="3.4" rx="1.6" fill="#b9cdf3"/>
+  <rect x="13" y="24.6" width="9" height="2.6" rx="1.3" fill="#c9d8f5"/>
+  <rect x="6.5" y="13.1" width="0" height="0" rx="0" fill="none"/>
+</svg>

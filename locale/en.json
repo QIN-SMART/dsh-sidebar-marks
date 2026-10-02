@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Sidebar Conversation Marks (dsh-sidebar-marks)",
+    "description": "Give sidebar conversations a soft tinted background (custom color and strength), a colored dot at the row's end, or a larger title. Unmarked conversations look exactly like the stock UI. Open it from the row's \"…\" menu, ⌘⇧M, or a right-click."
+  }
+}

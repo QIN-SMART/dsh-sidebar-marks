@@ -1,0 +1,58 @@
+{
+  "name": "dsh-sidebar-marks",
+  "version": "0.1.0",
+  "description": "Mark DSH sidebar conversations with a tinted background, a colored dot at the row's end, and a per-conversation title size.",
+  "icon": "./icon.svg",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.mjs",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/*.json",
+    "README.md",
+    "README_EN.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24"
+  },
+  "scripts": {
+    "test": "node --test test/verify.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QIN-SMART/dsh-sidebar-marks.git"
+  },
+  "homepage": "https://github.com/QIN-SMART/dsh-sidebar-marks#readme",
+  "bugs": {
+    "url": "https://github.com/QIN-SMART/dsh-sidebar-marks/issues"
+  },
+  "author": "QIN-SMART",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "sidebar",
+    "session",
+    "conversation"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,12 @@
+# 工作区临时产物
+.tmp/
+node_modules/
+*.log
+.DS_Store
+
+# tools/real-ui-check.mjs 跑真实界面检查时产出的截图：
+# 里面会拍到本机真实的会话标题，不要提交（仓库里用的是合成数据的 demo 截图）
+docs/real-ui.png
+docs/real-ui-panel.png
+docs/real-ui-menu.png
+docs/settings-list.png

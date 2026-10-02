@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>侧边栏对话标记 · 淡色底示例</title>
+<style>
+/* ============ DSH 真实令牌 ============ */
+.pane{
+  --n00:#fff; --n50:#f9fafb; --n75:#f1f3f5; --n150:#e9ecf2; --n300:#cfd3d6; --n400:#adb2b8;
+  --n600:#81858c; --n700:#61666b; --n750:#43454a; --n875:#232324; --n900:#1b1b1c; --n1000:#0f1115;
+  --ds400:#7aaaff; --ds500:#4176e6;
+  --radius-md:12px; --radius-lg:16px;
+}
+.pane[data-theme="light"]{
+  --side:var(--n50); --label1:var(--n1000); --label2:var(--n700); --label3:var(--n600);
+  --hover:#2631480f; --border:#0000001f; --elevated:var(--n00); --accent:var(--ds500);
+}
+.pane[data-theme="dark"]{
+  --side:var(--n900); --label1:var(--n50); --label2:var(--n300); --label3:var(--n400);
+  --hover:#ffffff14; --border:#ffffff29; --elevated:var(--n750); --accent:var(--ds400);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#0b0c10;color:#e8eaed;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px}
+
+.sidebar{width:100%;height:100%;padding:6px 12px;background:var(--side);color:var(--label1);font-size:14px;display:flex;flex-direction:column}
+.logoRow{height:52px;display:flex;align-items:center;gap:8px;padding:8px 0 8px 4px;font-size:17px;font-weight:600;overflow:hidden}
+.newSession{height:36px;display:flex;align-items:center;justify-content:center;margin:0 2px 12px;padding:8px 12px;
+  border:.5px solid var(--border);border-radius:var(--radius-md);background:var(--elevated);font-weight:500}
+.listArea{flex:1;min-height:0;padding-right:12px;overflow:auto}
+.projectRow,.sessionRow{display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--radius-md);color:var(--label1)}
+.projectRow{height:32px;color:var(--label3)}
+.sessionRow{gap:0;height:32px}
+/* DSH 原生的 hover / 选中态：用的是 background 简写 */
+.sessionRow:hover,.sessionRow.is-selected{background:var(--hover)}
+.cell{width:16px;height:20px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--label3)}
+.title{min-width:0;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sessionRow .title{flex:1;margin:0 6px 0 4px}
+.time{flex:none;color:var(--label3);font-size:10px;line-height:16px}
+.noteLine{color:var(--label3);font-size:11px;margin:6px 0 2px;padding-left:4px}
+
+/* ============ 候选实现：整行淡色底 ============ */
+[data-mk="blue"]{--mk:#4176e6}
+[data-mk="green"]{--mk:#22c55e}
+[data-mk="amber"]{--mk:#f59e0b}
+[data-mk="red"]{--mk:#ef4444}
+[data-mk="violet"]{--mk:#8b5cf6}
+[data-mk="slate"]{--mk:#61666b}
+.pane[data-theme="dark"] [data-mk="blue"]{--mk:#7aaaff}
+.pane[data-theme="dark"] [data-mk="green"]{--mk:#4ed17e}
+.pane[data-theme="dark"] [data-mk="amber"]{--mk:#f7ad31}
+.pane[data-theme="dark"] [data-mk="red"]{--mk:#f25a5a}
+.pane[data-theme="dark"] [data-mk="violet"]{--mk:#a78bfa}
+.pane[data-theme="dark"] [data-mk="slate"]{--mk:#adb2b8}
+
+/* 方案一：整行淡色底（用 background-image 叠加，hover 的 background-color 仍可见） */
+.sessionRow[data-fill]{
+  background-image:linear-gradient(var(--fill),var(--fill))!important;
+}
+/* 方案二：胶囊（左右各留 0，但只在行内缩进一点）——这里用同样的整行底，仅示意半径差异 */
+.sessionRow[data-shape="pill"]{border-radius:10px}
+/* 行尾圆点 */
+.sessionRow[data-dot="right"]{padding-right:20px;
+  background-image:radial-gradient(circle 4px at calc(100% - 14px) 50%, var(--mk) 3.5px, transparent 4px)}
+.sessionRow[data-fill][data-dot="right"]{
+  background-image:
+    radial-gradient(circle 4px at calc(100% - 14px) 50%, var(--mk) 3.5px, transparent 4px),
+    linear-gradient(var(--fill),var(--fill))!important;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mk);flex:none}
+
+/* ============ 外壳 ============ */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 20px;background:#14161c;border-bottom:1px solid #23262f}
+.topbar h1{margin:0;font-size:15px}
+.topbar .sub{color:#8b93a5;font-size:12px}
+.spacer{flex:1}
+.stage{display:grid;grid-template-columns:320px 320px minmax(320px,1fr);gap:20px;padding:20px;align-items:start}
+.pane{height:600px;border-radius:14px;overflow:hidden;border:1px solid #23262f;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.pane[data-theme="light"]{background:var(--side)}
+.pane[data-theme="dark"]{background:var(--side)}
+.card{background:#14161c;border:1px solid #23262f;border-radius:14px;padding:16px}
+.card h2{margin:0 0 6px;font-size:14px}
+.card p{color:#8b93a5;font-size:12px;line-height:1.7;margin:0 0 12px}
+.field{margin-bottom:14px}
+.field > label{display:block;font-size:12px;color:#9aa3b5;margin-bottom:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{background:#191c24;border:1px solid #2b2f3a;border-radius:9px;padding:5px 10px;color:#d5dae6;cursor:pointer;font:inherit;font-size:12px}
+.chips button[aria-pressed="true"]{border-color:#4b7bf5;background:#1b2233;color:#fff}
+.swatches{display:flex;gap:8px}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:var(--mk)}
+.sw[aria-pressed="true"]{border-color:#fff}
+.ladderPane{border:1px solid #23262f;border-radius:12px;padding:8px 10px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px;font-size:12px;color:#8b93a5;margin-top:10px}
+.kv b{color:#c9d1e0;font-weight:500}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>对话标记 · 「背景淡色底」示例</h1>
+  <span class="sub">同一个色相，只改铺在整行背景上的浓度。右侧可以换颜色 / 浓度 / 是否加行尾圆点，左边两个主题实时跟着变。</span>
+  <span class="spacer"></span>
+</header>
+
+<main class="stage">
+  <div><div class="noteLine">☀︎ 浅色主题</div><div class="pane" data-theme="light" id="paneLight"></div></div>
+  <div><div class="noteLine">☾ 深色主题</div><div class="pane" data-theme="dark" id="paneDark"></div></div>
+
+  <div>
+    <div class="card">
+      <h2>参数</h2>
+      <p>浓度就是「淡色底」的深浅。8–10% 在浅色下几乎只是一层薄雾，14% 以上开始明显像"文件夹色标"。</p>
+
+      <div class="field">
+        <label>颜色</label>
+        <div class="swatches" id="colorRow"></div>
+      </div>
+
+      <div class="field">
+        <label>浓度（整行背景）</label>
+        <div class="chips" id="mixRow"></div>
+      </div>
+
+      <div class="field">
+        <label>行尾圆点</label>
+        <div class="chips" id="dotRow"></div>
+      </div>
+
+      <div class="kv">
+        <div>实现</div><div><b>background-image: linear-gradient(var(--fill), var(--fill)) !important</b><br>铺在行背景之上、hover 底色之下不动</div>
+        <div>铺色范围</div><div>整行（含 12px 圆角），左右与标题对齐</div>
+        <div>hover / 选中</div><div>DSH 的 <b>background-color</b> 照常叠加，颜色会自然变深一档</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>浓度阶梯（同一条对话，只改浓度）</h2>
+      <p>从 6% 到 22%，都铺满整行。挑一个"看得出来但不抢眼"的档位。</p>
+      <div id="ladderLight" class="ladderPane" data-theme="light"></div>
+      <div id="ladderDark" class="ladderPane" data-theme="dark" style="margin-top:10px"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+var COLORS = [['blue','蓝'],['green','绿'],['amber','琥珀'],['red','红'],['violet','紫'],['slate','灰蓝']];
+var MIXES = [6, 8, 10, 12, 16, 22];
+
+var state = { color: 'blue', mix: 10, dot: 'right' };
+
+var ROWS = [
+  { title:'侧边栏对话标记插件设计', time:'刚刚', selected:true },
+  { title:'插件插槽 API 逆向记录', time:'2 小时', color:'slate' },
+  { title:'兼容性检查失败排查', time:'昨天', color:'amber' },
+  { title:'文献综述整理（第 3 章）', time:'周一', color:'red' },
+  { title:'实验数据复核', time:'周一', color:'green' },
+  { title:'没打标记的对话（对照）', time:'上周', blank:true }
+];
+
+function fill(color, mix){
+  return 'color-mix(in srgb, var(--mk) ' + mix + '%, transparent)';
+}
+
+function rowHTML(r){
+  if (r.blank){
+    return '<div class="sessionRow"><span class="cell"></span><span class="title" style="color:var(--label3)">' + r.title +
+      '</span><span class="time">' + r.time + '</span></div>';
+  }
+  var color = r.color || state.color;
+  var style = '--fill:' + fill(color, state.mix) + ';';
+  var attrs = ' data-mk="' + color + '" data-fill="1"';
+  if (state.dot === 'right') attrs += ' data-dot="right"';
+  var cell = '<span class="cell">' + (state.dot === 'left' ? '<span class="dot"></span>' : '') + '</span>';
+  var cls = 'sessionRow' + (r.selected ? ' is-selected' : '');
+  return '<div class="' + cls + '" style="' + style + '"' + attrs + '>' + cell +
+    '<span class="title">' + r.title + '</span><span class="time">' + r.time + '</span></div>';
+}
+
+function sidebarHTML(){
+  return '<div class="logoRow">🐟 DeepSeek Harness</div>' +
+    '<div class="newSession">＋ 新对话</div>' +
+    '<div class="listArea" role="tree">' +
+      '<div class="projectRow"><span class="cell">📁</span><span class="title" style="flex:1;color:var(--label3)">DSH 插件开发</span></div>' +
+      ROWS.map(rowHTML).join('') +
+    '</div>';
+}
+
+function paint(){
+  ['paneLight','paneDark'].forEach(function(id){
+    document.getElementById(id).innerHTML = '<div class="sidebar">' + sidebarHTML() + '</div>';
+  });
+}
+
+function chips(host, items, current, onPick){
+  host.innerHTML = '';
+  items.forEach(function(it){
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = it[1];
+    b.setAttribute('aria-pressed', String(current === it[0]));
+    b.onclick = function(){ onPick(it[0]); };
+    host.appendChild(b);
+  });
+}
+
+function controls(){
+  var cr = document.getElementById('colorRow');
+  cr.innerHTML = '';
+  COLORS.forEach(function(c){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw'; b.title = c[1];
+    b.setAttribute('data-mk', c[0]);
+    b.setAttribute('aria-pressed', String(state.color === c[0]));
+    b.onclick = function(){ state.color = c[0]; render(); };
+    cr.appendChild(b);
+  });
+  chips(document.getElementById('mixRow'), MIXES.map(function(m){ return [m, m + '%']; }), state.mix, function(v){ state.mix = v; render(); });
+  chips(document.getElementById('dotRow'), [['right','加'],['none','不加'],['left','改到标题左边']], state.dot, function(v){ state.dot = v; render(); });
+}
+
+function ladderHTML(){
+  var color = state.color;
+  return MIXES.map(function(m){
+    var style = '--fill:' + fill(color, m) + ';';
+    return '<div class="sessionRow" style="' + style + '" data-mk="' + color + '" data-fill="1" data-dot="' + (state.dot === 'none' ? 'none' : state.dot) + '">' +
+      '<span class="cell">' + (state.dot === 'left' ? '<span class="dot"></span>' : '') + '</span>' +
+      '<span class="title">实验数据复核</span>' +
+      '<span class="time" style="width:46px;text-align:right">' + m + '%</span></div>';
+  }).join('');
+}
+
+function render(){
+  paint();
+  controls();
+  ['ladderLight','ladderDark'].forEach(function(id){
+    document.getElementById(id).innerHTML = ladderHTML();
+  });
+}
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DSH 侧边栏对话标记 · 试用台</title>
+<style>
+/* ============================================================
+   1. DSH 真实设计令牌（逐值抄自 dsh-client-ui-theme）
+   ============================================================ */
+.pane{
+  --dsw-static-neutral-bluish-00:#fff; --dsw-static-neutral-bluish-50:#f9fafb;
+  --dsw-static-neutral-bluish-75:#f1f3f5; --dsw-static-neutral-bluish-150:#e9ecf2;
+  --dsw-static-neutral-bluish-300:#cfd3d6; --dsw-static-neutral-bluish-400:#adb2b8;
+  --dsw-static-neutral-bluish-600:#81858c; --dsw-static-neutral-bluish-700:#61666b;
+  --dsw-static-neutral-bluish-750:#43454a; --dsw-static-neutral-bluish-800:#353638;
+  --dsw-static-neutral-bluish-875:#232324; --dsw-static-neutral-bluish-900:#1b1b1c;
+  --dsw-static-neutral-bluish-950:#151517; --dsw-static-neutral-bluish-1000:#0f1115;
+  --dsw-static-deepseek-400:#7aaaff; --dsw-static-deepseek-500:#4176e6;
+  --dsw-radius-sm:8px; --dsw-radius-md:12px; --dsw-radius-lg:16px;
+}
+.pane[data-theme="light"]{
+  --dsw-specific-sidebar-fill:var(--dsw-static-neutral-bluish-50);
+  --dsw-alias-label-primary:var(--dsw-static-neutral-bluish-1000);
+  --dsw-alias-label-secondary:var(--dsw-static-neutral-bluish-700);
+  --dsw-alias-label-tertiary:var(--dsw-static-neutral-bluish-600);
+  --dsw-alias-interactive-bg-hover:#2631480f;
+  --dsw-alias-border-l3:#0000001f;
+  --dsw-alias-button-elevated-fill:var(--dsw-static-neutral-bluish-00);
+  --dsw-alias-state-business-primary:var(--dsw-static-deepseek-500);
+  --dsw-alias-interactive-bg-hover-accent:#26314824;
+}
+.pane[data-theme="dark"]{
+  --dsw-specific-sidebar-fill:var(--dsw-static-neutral-bluish-900);
+  --dsw-alias-label-primary:var(--dsw-static-neutral-bluish-50);
+  --dsw-alias-label-secondary:var(--dsw-static-neutral-bluish-300);
+  --dsw-alias-label-tertiary:var(--dsw-static-neutral-bluish-400);
+  --dsw-alias-interactive-bg-hover:#ffffff14;
+  --dsw-alias-border-l3:#ffffff29;
+  --dsw-alias-button-elevated-fill:var(--dsw-static-neutral-bluish-750);
+  --dsw-alias-state-business-primary:var(--dsw-static-deepseek-400);
+  --dsw-alias-interactive-bg-hover-accent:#ffffff24;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#0b0c10;color:#e8eaed;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px}
+
+/* ============================================================
+   2. DSH 侧边栏 1:1 复刻（尺寸全部来自 ui-sidebar / ui-workspace 的真实 CSS）
+   ============================================================ */
+.dsh-sidebar{width:100%;height:100%;padding:6px 12px;background:var(--dsw-specific-sidebar-fill);
+  color:var(--dsw-alias-label-primary);font-size:14px;display:flex;flex-direction:column}
+.logoRow{height:56px;display:flex;align-items:center;gap:8px;padding:8px 0 8px 4px;font-size:18px;font-weight:600;overflow:hidden}
+.newSession{height:38px;display:flex;align-items:center;justify-content:center;gap:6px;margin:0 2px 12px;padding:8px 12px;
+  border:.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-button-elevated-fill);
+  font-weight:500;cursor:pointer}
+.newSession:hover{background:var(--dsw-alias-interactive-bg-hover)}
+.listArea{flex:1;min-height:0;padding-right:12px;overflow:auto}
+.projectRow,.sessionRow{display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--dsw-radius-md);
+  cursor:pointer;user-select:none;color:var(--dsw-alias-label-primary)}
+.projectRow{height:34px}
+.sessionRow{gap:0;height:32px}
+.projectRow:hover,.sessionRow:hover,.sessionRow.is-selected{background:var(--dsw-alias-interactive-bg-hover)}
+.cell{width:16px;height:20px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--dsw-alias-label-tertiary)}
+.title{min-width:0;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sessionRow .title{flex:1;margin:0 6px 0 4px}
+.time{flex:none;color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:16px}
+.statusDot{width:8px;height:8px;border-radius:50%;background:var(--dsw-alias-state-business-primary)}
+.settingsRow{height:36px;display:flex;align-items:center;gap:8px;margin:0 2px;padding:7px 8px;border-radius:var(--dsw-radius-md)}
+
+/* ============================================================
+   3. 插件真实注入的标记样式（与 plugin/lib/client.js 里的 CSS 一字不差）
+   ============================================================ */
+[data-dshmk-color="blue"]{--dshmk-color:#4176e6}
+[data-dshmk-color="green"]{--dshmk-color:#22c55e}
+[data-dshmk-color="amber"]{--dshmk-color:#f59e0b}
+[data-dshmk-color="red"]{--dshmk-color:#ef4444}
+[data-dshmk-color="violet"]{--dshmk-color:#8b5cf6}
+[data-dshmk-color="slate"]{--dshmk-color:#61666b}
+.pane[data-theme="dark"] [data-dshmk-color="blue"]{--dshmk-color:#7aaaff}
+.pane[data-theme="dark"] [data-dshmk-color="green"]{--dshmk-color:#4ed17e}
+.pane[data-theme="dark"] [data-dshmk-color="amber"]{--dshmk-color:#f7ad31}
+.pane[data-theme="dark"] [data-dshmk-color="red"]{--dshmk-color:#f25a5a}
+.pane[data-theme="dark"] [data-dshmk-color="violet"]{--dshmk-color:#a78bfa}
+.pane[data-theme="dark"] [data-dshmk-color="slate"]{--dshmk-color:#adb2b8}
+
+[data-row-key^="session:"][data-dshmk]{position:relative}
+/* 整行淡色底：浓度 = 浅色 --dshmk-mix / 深色 --dshmk-mix-dark（自动 +4 个点） */
+[data-row-key^="session:"][data-dshmk-fill="1"]{
+  --dshmk-fill:color-mix(in srgb, var(--dshmk-color) var(--dshmk-mix,10%), transparent);
+  background-image:linear-gradient(var(--dshmk-fill),var(--dshmk-fill))!important}
+[data-row-key^="session:"][data-dshmk-fill="1"]{--dshmk-fill:color-mix(in srgb, var(--dshmk-color) var(--dshmk-mix,10%), transparent)}
+.pane[data-theme="dark"] [data-row-key^="session:"][data-dshmk-fill="1"]{
+  --dshmk-fill:color-mix(in srgb, var(--dshmk-color) var(--dshmk-mix-dark,14%), transparent)}
+[data-row-key^="session:"][data-dshmk-dots="right"],
+[data-row-key^="session:"][data-dshmk-dots="both"]{
+  padding-right:20px!important;
+  background-image:radial-gradient(circle 4px at calc(100% - 14px) 50%, var(--dshmk-color) 3.5px, transparent 4px)!important}
+[data-row-key^="session:"][data-dshmk-fill="1"][data-dshmk-dots="right"],
+[data-row-key^="session:"][data-dshmk-fill="1"][data-dshmk-dots="both"]{
+  background-image:radial-gradient(circle 4px at calc(100% - 14px) 50%, var(--dshmk-color) 3.5px, transparent 4px),
+    linear-gradient(var(--dshmk-fill),var(--dshmk-fill))!important}
+[data-dshmk-size="xs"]{--dshmk-fs:12px}
+[data-dshmk-size="s"]{--dshmk-fs:13px}
+[data-dshmk-size="m"]{--dshmk-fs:14px}
+[data-dshmk-size="l"]{--dshmk-fs:15px}
+[data-dshmk-size="xl"]{--dshmk-fs:16px}
+[data-dshmk-weight="500"]{--dshmk-fw:500}
+[data-dshmk-weight="600"]{--dshmk-fw:600}
+[data-row-key^="session:"][data-dshmk]:not([data-dshmk-size="inherit"]) > span:nth-child(2){font-size:var(--dshmk-fs,14px)}
+[data-row-key^="session:"][data-dshmk][data-dshmk-weight="500"] > span:nth-child(2),
+[data-row-key^="session:"][data-dshmk][data-dshmk-weight="600"] > span:nth-child(2){font-weight:var(--dshmk-fw)}
+.dshmk-dot{display:inline-flex;align-items:center;justify-content:center;flex:none;width:8px;height:8px;
+  border-radius:50%;background:var(--dshmk-color);box-sizing:content-box}
+
+/* ============================================================
+   4. 试用台外壳
+   ============================================================ */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 20px;background:#14161c;border-bottom:1px solid #23262f}
+.topbar h1{margin:0;font-size:15px;font-weight:600}
+.topbar .sub{color:#8b93a5;font-size:12px}
+.spacer{flex:1}
+.seg{display:inline-flex;background:#1d2029;border:1px solid #2b2f3a;border-radius:9px;padding:2px}
+.seg button{background:none;border:none;color:#9aa3b5;padding:5px 11px;border-radius:7px;cursor:pointer;font:inherit;font-size:12.5px}
+.seg button[aria-pressed="true"]{background:#2f3542;color:#fff}
+.stage{display:grid;grid-template-columns:300px 300px minmax(340px,1fr);gap:20px;padding:20px;align-items:start}
+.paneWrap{display:flex;flex-direction:column;gap:8px}
+.paneLabel{font-size:12px;color:#8b93a5;padding-left:4px}
+.pane{height:560px;border-radius:14px;overflow:hidden;border:1px solid #23262f;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.pane[data-theme="light"]{background:var(--dsw-specific-sidebar-fill)}
+.pane[data-theme="dark"]{background:var(--dsw-specific-sidebar-fill)}
+.card{background:#14161c;border:1px solid #23262f;border-radius:14px;padding:16px}
+.card h2{margin:0 0 4px;font-size:14px}
+.card .hint{color:#8b93a5;font-size:12px;line-height:1.6;margin:0 0 14px}
+.field{margin-bottom:14px}
+.field > label{display:block;font-size:12px;color:#9aa3b5;margin-bottom:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{background:#191c24;border:1px solid #2b2f3a;border-radius:9px;padding:5px 10px;color:#d5dae6;
+  cursor:pointer;font:inherit;font-size:12px}
+.chips button[aria-pressed="true"]{border-color:#4b7bf5;background:#1b2233;color:#fff}
+.swatches{display:flex;gap:8px;align-items:center}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;background:var(--dshmk-color)}
+.sw[aria-pressed="true"]{border-color:#fff}
+.customRow{display:flex;align-items:center;gap:8px;margin-top:8px}
+#customPicker{width:26px;height:26px;padding:0;border:2px solid #2b2f3a;border-radius:50%;background:transparent;cursor:pointer;
+  appearance:none;-webkit-appearance:none;overflow:hidden}
+#customPicker::-webkit-color-swatch-wrapper{padding:0}
+#customPicker::-webkit-color-swatch{border:none;border-radius:50%}
+#customPicker::-moz-color-swatch{border:none;border-radius:50%}
+#customHex{width:96px;padding:5px 8px;border-radius:9px;border:1px solid #2b2f3a;background:#0f1116;color:#e8eaed;
+  font:inherit;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.sw[data-color="none"]{background:transparent;border-color:#2b2f3a;color:#8b93a5;font-size:10px}
+textarea{width:100%;height:130px;background:#0f1116;color:#c9d1e0;border:1px solid #2b2f3a;border-radius:10px;padding:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.5;resize:vertical}
+.note{padding:0 20px 40px;color:#8b93a5;font-size:12px;line-height:1.8}
+.note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#1a1d25;padding:1px 5px;border-radius:5px;color:#a9b6cf}
+.note b{color:#c9d1e0}
+@media (max-width:1180px){.stage{grid-template-columns:300px minmax(320px,1fr)}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <h1>DSH 侧边栏对话标记 · 试用台</h1>
+  <span class="sub">左侧两个面板是 1:1 复刻的真实 DSH 侧边栏；右侧改参数即时生效。插件已装进 web profile。</span>
+  <span class="spacer"></span>
+  <div class="seg" id="themeSeg">
+    <button data-mode="both" aria-pressed="true">浅色+深色</button>
+    <button data-mode="light" aria-pressed="false">只看浅色</button>
+    <button data-mode="dark" aria-pressed="false">只看深色</button>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="paneWrap" data-wrap="light"><div class="paneLabel">☀︎ 浅色主题</div><div class="pane" data-theme="light" data-pane="light"></div></div>
+  <div class="paneWrap" data-wrap="dark"><div class="paneLabel">☾ 深色主题</div><div class="pane" data-theme="dark" data-pane="dark"></div></div>
+
+  <div class="paneWrap">
+    <div class="card">
+      <h2>正在编辑：<span id="editingName">—</span></h2>
+      <p class="hint">点侧边栏里任意一条对话切换编辑对象。未标记的对话与原生界面完全一致。</p>
+
+      <div class="field">
+        <label>颜色（预设 6 色，或自定义色号）</label>
+        <div class="swatches" id="colorRow"></div>
+        <div class="customRow">
+          <input type="color" id="customPicker" aria-label="自定义颜色">
+          <input type="text" id="customHex" maxlength="7" spellcheck="false" placeholder="#8b5cf6" aria-label="自定义色号">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>整行淡色底浓度（深色主题自动 +4 个点）</label>
+        <div class="chips" id="fillRow"></div>
+      </div>
+
+      <div class="field">
+        <label>圆点（右侧那个落在行尾，不占用布局）</label>
+        <div class="chips" id="dotRow"></div>
+      </div>
+
+      <div class="field">
+        <label>标题字号（默认「原样」）</label>
+        <div class="chips" id="sizeRow"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>当前配置</h2>
+      <p class="hint">这就是插件存在 localStorage 里的结构，可以直接贴给我。</p>
+      <textarea id="exportBox" readonly></textarea>
+      <div class="chips" style="margin-top:10px">
+        <button id="copyBtn">复制 JSON</button>
+        <button id="resetBtn">恢复示例</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="note">
+  <p><b>在插件里怎么用：</b>对话行悬停 →「…」→ <b>标记…</b>；或在侧边栏里按 <code>⌘⇧M</code>（Windows/Linux <code>Ctrl+Shift+M</code>）标记当前打开的对话；或直接<b>右键任意对话行</b>。</p>
+  <p><b>实现要点：</b>整行淡色底 = <code>background-image: linear-gradient(var(--dshmk-fill), var(--dshmk-fill)) !important</code>，颜色由 <code>color-mix(in srgb, 标记色 N%, transparent)</code> 混出；DSH 的 hover / 选中用 <code>background</code> 简写，会被这条 <code>!important</code> 压住，所以底色与 hover 叠加、颜色自然深一档。深色主题自动用 <code>--dshmk-mix-dark</code>（+4 个点）。</p>
+  <p><b>圆点：</b>用 <code>radial-gradient</code> 画在行尾 14px 处并预留 20px 右内边距 —— 不占布局、不干扰 React、不会被 hover 吃掉。对话正在跑（状态点占用左侧那格）或已归档时，「标题左侧」的圆点自动消失，淡色底 / 右侧圆点 / 字号照常。</p>
+</div>
+
+<script>
+var COLORS = { blue:'蓝 · 主线', green:'绿 · 完成', amber:'琥珀 · 待跟进', red:'红 · 紧急', violet:'紫 · 个人', slate:'灰蓝 · 归档' };
+var FILLS = [[8,'8%'],[10,'10%'],[12,'12%'],[16,'16%'],[22,'22%'],[0,'不要']];
+var DOTS = [['right','最右侧'],['left','标题左侧'],['both','两侧'],['none','不要']];
+var SIZES = [['inherit','原样'],['xs','12'],['s','13'],['m','14'],['l','15'],['xl','16']];
+
+// ---- 颜色工具（与插件里的算法一致）----
+var HEX_RE = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+function isHex(v){ return HEX_RE.test(String(v || '')); }
+function normHex(v){ var h = String(v).trim().toLowerCase(); return h.length === 4 ? '#' + h[1]+h[1]+h[2]+h[2]+h[3]+h[3] : h; }
+function hexToRgb(h){ h = normHex(h).slice(1); return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; }
+function toHex2(n){ var v = Math.max(0, Math.min(255, Math.round(n))).toString(16); return v.length === 1 ? '0' + v : v; }
+function mixHex(a, b, r){ var x = hexToRgb(a), y = hexToRgb(b); return '#' + [0,1,2].map(function(i){ return toHex2(x[i] + (y[i]-x[i]) * r); }).join(''); }
+function lum(h){ var c = hexToRgb(h); return (0.2126*c[0] + 0.7152*c[1] + 0.0722*c[2]) / 255; }
+/** 自定义色号在某个主题下的实际色值；预设色交给 CSS 的 data-mk 表，返回 null。 */
+function hexForPane(color, theme){
+  if (!isHex(color)) return null;
+  var base = normHex(color);
+  return theme === 'dark' ? (lum(base) > 0.55 ? base : mixHex(base, '#ffffff', 0.28)) : base;
+}
+/** 淡色底：浓度由 --dshmk-color 与百分比混出（与插件注入的 CSS 一致）。 */
+function fill(mix){ return 'color-mix(in srgb, var(--dshmk-color) ' + mix + '%, transparent)'; }
+
+var ROWS = [
+  { id:'s1', title:'侧边栏对话标记插件设计', time:'刚刚', selected:true },
+  { id:'s2', title:'插件插槽 API 逆向记录', time:'2 小时' },
+  { id:'s3', title:'兼容性检查失败排查', time:'昨天', running:true },
+  { id:'s4', title:'文献综述整理（第 3 章）', time:'周一' },
+  { id:'s5', title:'实验数据复核', time:'周一' },
+  { id:'s6', title:'投稿系统填表清单', time:'上周' },
+  { id:'s7', title:'日语听力练习计划', time:'9月25日' },
+  { id:'s8', title:'没打标记的对话（应为原样）', time:'上周' }
+];
+
+var marks = {
+  s1: { color:'blue',   fill:10, dots:'right', size:'inherit' },
+  s2: { color:'slate',  fill:8,  dots:'left',  size:'inherit' },
+  s3: { color:'amber',  fill:10, dots:'right', size:'inherit' },
+  s4: { color:'#e11d48', fill:16, dots:'both',  size:'inherit' },
+  s5: { color:'green',  fill:22, dots:'none',  size:'inherit' },
+  s6: { color:'violet', fill:0,  dots:'right', size:'inherit' },
+  s7: { color:null,     fill:0,  dots:'none',  size:'xl' }
+};
+var SEED = JSON.parse(JSON.stringify(marks));
+var editing = 's1';
+
+function attrsOf(m){
+  if (!m) return null;
+  var hasColor = !!m.color;
+  var fill = hasColor && Number(m.fill) > 0 ? Math.round(Number(m.fill)) : 0;
+  var dots = hasColor ? (m.dots || 'none') : 'none';
+  var size = m.size || 'inherit';
+  if (fill === 0 && dots === 'none' && size === 'inherit') return null;
+  var attrs = { 'data-dshmk':'1', 'data-dshmk-fill': fill > 0 ? '1' : '0', 'data-dshmk-dots':dots,
+    'data-dshmk-size':size, 'data-dshmk-weight':'400' };
+  if (hasColor) attrs['data-dshmk-color'] = m.color;
+  var style = {};
+  if (fill > 0){ style['--dshmk-mix'] = fill + '%'; style['--dshmk-mix-dark'] = Math.min(30, fill + 4) + '%'; }
+  return { attrs: attrs, style: style };
+}
+
+function rowHTML(r, theme){
+  var d = attrsOf(marks[r.id]);
+  var color = (marks[r.id] || {}).color;
+  var hex = hexForPane(color, theme);
+  if (d && hex) d.attrs['data-dshmk-color'] = color;   // 自定义色号也带上，方便看
+  var attr = d ? Object.keys(d.attrs).map(function(k){ return ' ' + k + '="' + d.attrs[k] + '"'; }).join('') : '';
+  var decls = d ? Object.keys(d.style).map(function(k){ return k + ':' + d.style[k]; }) : [];
+  if (d && d.attrs['data-dshmk-fill'] === '1') decls.push('--fill:' + fill(Number(marks[r.id].fill)));
+  if (hex) decls.push('--dshmk-color:' + hex);
+  var sty = decls.length ? ' style="' + decls.join(';') + '"' : '';
+  var cell = r.running
+    ? '<span class="cell"><span class="statusDot"></span></span>'
+    : '<span class="cell">' + (d && (d.attrs['data-dshmk-dots'] === 'left' || d.attrs['data-dshmk-dots'] === 'both')
+        ? '<span class="dshmk-dot" data-dshmk-color="' + d.attrs['data-dshmk-color'] + '"></span>' : '') + '</span>';
+  return '<div class="sessionRow' + (r.selected ? ' is-selected' : '') + '" data-row-key="session:' + r.id + '" data-sid="' + r.id + '"' + attr + sty + '>' +
+    cell + '<span class="title">' + r.title + '</span><span class="time">' + r.time + '</span></div>';
+}
+
+function sidebarHTML(theme){
+  return '<div class="logoRow">🐟 DeepSeek Harness</div>' +
+    '<div class="newSession">＋ 新对话</div>' +
+    '<div class="listArea" role="tree">' +
+      '<div class="projectRow" data-row-key="workspace:w1"><span class="cell">📁</span><span class="title" style="flex:1">DSH 插件开发</span></div>' +
+      ROWS.slice(0,3).map(function(r){ return rowHTML(r, theme); }).join('') +
+      '<div class="projectRow" data-row-key="workspace:w2"><span class="cell">📁</span><span class="title" style="flex:1">研究与写作</span></div>' +
+      ROWS.slice(3,7).map(function(r){ return rowHTML(r, theme); }).join('') +
+      ROWS.slice(7).map(function(r){ return rowHTML(r, theme); }).join('') +
+    '</div>' +
+    '<div class="settingsRow">⚙ 设置</div>';
+}
+
+var root = document.body;
+function paint(){
+  document.querySelectorAll('.pane').forEach(function(p){
+    p.innerHTML = '<div class="dsh-sidebar">' + sidebarHTML(p.dataset.theme) + '</div>';
+    p.querySelectorAll('[data-sid]').forEach(function(row){
+      row.onclick = function(){ editing = row.dataset.sid; renderControls(); };
+    });
+  });
+}
+
+function chips(host, list, current, onPick){
+  host.innerHTML = '';
+  list.forEach(function(item){
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = item[1];
+    b.setAttribute('aria-pressed', current === item[0] ? 'true' : 'false');
+    b.onclick = function(){ onPick(item[0]); };
+    host.appendChild(b);
+  });
+}
+
+function renderControls(){
+  var m = marks[editing] || { color:'blue', bottom:'block', dots:'right', size:'inherit' };
+  document.getElementById('editingName').textContent = (ROWS.filter(function(r){ return r.id === editing; })[0] || {}).title || '—';
+
+  var colorRow = document.getElementById('colorRow');
+  colorRow.innerHTML = '';
+  Object.keys(COLORS).forEach(function(key){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw'; b.title = COLORS[key];
+    b.setAttribute('data-dshmk-color', key);
+    b.setAttribute('aria-pressed', m.color === key ? 'true' : 'false');
+    b.onclick = function(){ set({ color: key }); };
+    colorRow.appendChild(b);
+  });
+  var none = document.createElement('button');
+  none.type = 'button'; none.className = 'sw'; none.textContent = '无';
+  none.setAttribute('data-color', 'none');
+  none.setAttribute('aria-pressed', m.color ? 'false' : 'true');
+  none.onclick = function(){ set({ color: null }); };
+  colorRow.appendChild(none);
+
+   chips(document.getElementById('fillRow'), FILLS, Number(m.fill || 0), function(v){ set({ fill: v }); });
+  chips(document.getElementById('dotRow'), DOTS, m.dots || 'none', function(v){ set({ dots: v }); });
+  chips(document.getElementById('sizeRow'), SIZES, m.size || 'inherit', function(v){ set({ size: v }); });
+  wireCustom(m);
+
+  document.getElementById('exportBox').value = JSON.stringify({ version: 2, marks: marks }, null, 2);
+}
+
+function wireCustom(m){
+  var picker = document.getElementById('customPicker');
+  var hex = document.getElementById('customHex');
+  var current = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(m.color || '') ? m.color : '#4176e6';
+  picker.value = current;
+  hex.value = /^#/.test(m.color || '') ? m.color : '';
+  picker.oninput = function(){ set({ color: picker.value }); };
+  hex.onchange = function(){
+    var raw = String(hex.value || '').trim();
+    if (raw && raw[0] !== '#') raw = '#' + raw;
+    if (/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(raw)) set({ color: raw.toLowerCase() });
+    else hex.value = /^#/.test((marks[editing] || {}).color || '') ? marks[editing].color : '';
+  };
+  hex.onkeydown = function(e){ if (e.key === 'Enter') hex.onchange(); };
+}
+
+function set(patch){
+  var base = marks[editing] || { color:'blue', bottom:'block', dots:'right', size:'inherit' };
+  var next = Object.assign({}, base, patch);
+  var d = attrsOf(next);
+  if (d) marks[editing] = next; else delete marks[editing];
+  paint(); renderControls();
+}
+
+document.getElementById('themeSeg').onclick = function(e){
+  var btn = e.target.closest('button'); if (!btn) return;
+  document.querySelectorAll('#themeSeg button').forEach(function(b){ b.setAttribute('aria-pressed', String(b === btn)); });
+  var mode = btn.dataset.mode;
+  document.querySelector('[data-wrap="light"]').style.display = mode === 'dark' ? 'none' : '';
+  document.querySelector('[data-wrap="dark"]').style.display = mode === 'light' ? 'none' : '';
+};
+document.getElementById('resetBtn').onclick = function(){ marks = JSON.parse(JSON.stringify(SEED)); paint(); renderControls(); };
+document.getElementById('copyBtn').onclick = function(){
+  var t = document.getElementById('exportBox'); t.select();
+  if (navigator.clipboard) navigator.clipboard.writeText(t.value);
+  document.getElementById('copyBtn').textContent = '已复制 ✓';
+  setTimeout(function(){ document.getElementById('copyBtn').textContent = '复制 JSON'; }, 1200);
+};
+
+paint();
+renderControls();
+</script>
+</body>
+</html>

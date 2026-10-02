@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>dsh-sidebar-marks · 真实插件产物端到端验证</title>
+<style>
+/* ============================================================
+   DSH 真实令牌（逐值抄自 dsh-client-ui-theme）
+   ============================================================ */
+body{
+  --n00:#fff; --n50:#f9fafb; --n75:#f1f3f5; --n150:#e9ecf2; --n300:#cfd3d6; --n400:#adb2b8;
+  --n600:#81858c; --n700:#61666b; --n750:#43454a; --n800:#353638; --n875:#232324;
+  --n900:#1b1b1c; --n950:#151517; --n1000:#0f1115; --ds400:#7aaaff; --ds500:#4176e6;
+  --dsw-specific-sidebar-fill:var(--n50);
+  --dsw-alias-label-primary:var(--n1000);
+  --dsw-alias-label-secondary:var(--n700);
+  --dsw-alias-label-tertiary:var(--n600);
+  --dsw-alias-interactive-bg-hover:#2631480f;
+  --dsw-alias-border-l3:#0000001f;
+  --dsw-alias-state-business-primary:var(--ds500);
+  --dsw-alias-bg-layer-1:#fff; --dsw-alias-bg-mask-1:#0000003d;
+  --dsw-radius-md:12px; --dsw-radius-lg:16px;
+}
+body[data-ds-dark-theme]{
+  --dsw-specific-sidebar-fill:var(--n900);
+  --dsw-alias-label-primary:var(--n50);
+  --dsw-alias-label-secondary:var(--n300);
+  --dsw-alias-label-tertiary:var(--n400);
+  --dsw-alias-interactive-bg-hover:#ffffff14;
+  --dsw-alias-border-l3:#ffffff29;
+  --dsw-alias-state-business-primary:var(--ds400);
+  --dsw-alias-bg-layer-1:var(--n875); --dsw-alias-bg-mask-1:#0000007a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--dsw-specific-sidebar-fill);color:var(--dsw-alias-label-primary);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px}
+
+/* ============================================================
+   DSH 侧边栏行的真实 CSS（含会用 background 简写吃掉 background-image 的 hover 规则）
+   ============================================================ */
+.body-pad{padding:20px}
+.wrap{display:flex;gap:24px;align-items:flex-start}
+.sidebar{width:310px;padding:6px 12px;background:var(--dsw-specific-sidebar-fill)}
+.hHd-logoRow{height:52px;display:flex;align-items:center;gap:8px;padding:8px 0 8px 4px;font-size:17px;font-weight:600}
+.hHd-newSession{height:36px;display:flex;align-items:center;justify-content:center;border:.5px solid var(--dsw-alias-border-l3);
+  border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1);margin-bottom:12px;font-weight:500}
+.bhn-listArea{padding-right:12px}
+.YDXeBa-projectRow,.YDXeBa-sessionRow{display:flex;align-items:center;gap:6px;padding:0 8px;border-radius:var(--dsw-radius-md);
+  cursor:pointer;user-select:none;color:var(--dsw-alias-label-primary);padding-inline-start:calc(8px + var(--dsh-workspace-indent,0px))}
+.YDXeBa-projectRow{height:32px}
+.YDXeBa-sessionRow{gap:0;height:32px}
+/* ↓ 这条简写规则会把插件的 background-image 清掉，插件用 !important 对抗它 */
+.YDXeBa-projectRow:hover,.YDXeBa-sessionRow:hover,.YDXeBa-sessionRow.is-selected{background:var(--dsw-alias-interactive-bg-hover)}
+.YDXeBa-slot{width:16px;height:20px;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--dsw-alias-label-tertiary)}
+.YDXeBa-title{min-width:0;font-size:14px;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.YDXeBa-sessionRow .YDXeBa-title{flex:1;margin:0 6px 0 4px}
+.YDXeBa-time{flex:none;color:var(--dsw-alias-label-tertiary);font-size:10px;line-height:16px}
+.YDXeBa-status{width:8px;height:8px;border-radius:50%;background:var(--dsw-alias-state-business-primary)}
+.hint{color:var(--dsw-alias-label-tertiary);font-size:12px;margin:0 0 10px;line-height:1.7}
+.bar{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:10px 14px;margin:0 0 12px;
+  border:1px solid var(--dsw-alias-border-l3);border-radius:10px;white-space:pre-wrap;line-height:1.7}
+.legend{font-size:11.5px;color:var(--dsw-alias-label-tertiary);margin-top:8px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="body-pad">
+  <p class="hint">本页加载的是 <b>真实的插件产物</b> <code>lib/client.js</code>：⓪ <code>window.__ModuleLoader__.load</code> → factory → <code>apply(ctx)</code>；
+  样式表由插件自己注入，行标注由插件的 MutationObserver 完成，左侧圆点由插件注册的插槽组件渲染（下面的 React shim 负责把它变成真 DOM）。</p>
+  <div class="wrap">
+    <div class="sidebar">
+      <div class="hHd-logoRow">🐟 DeepSeek Harness</div>
+      <div class="hHd-newSession">＋ 新对话</div>
+      <div class="bhn-listArea" role="tree">
+        <div class="YDXeBa-projectRow" data-row-key="workspace:w1"><span class="YDXeBa-slot">📁</span><span class="YDXeBa-title" style="flex:1">DSH 插件开发</span></div>
+        <div class="YDXeBa-sessionRow is-selected" data-row-key="session:s1" role="treeitem" aria-selected="true"><span class="YDXeBa-slot" data-slot="s1"></span><span class="YDXeBa-title">侧边栏对话标记插件设计</span><span class="YDXeBa-time">刚刚</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s2" role="treeitem" aria-selected="false"><span class="YDXeBa-slot" data-slot="s2"></span><span class="YDXeBa-title">插件插槽 API 逆向记录</span><span class="YDXeBa-time">2 小时</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s3" role="treeitem" aria-selected="false"><span class="YDXeBa-slot"><span class="YDXeBa-status"></span></span><span class="YDXeBa-title">兼容性检查失败排查</span><span class="YDXeBa-time">昨天</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s4" role="treeitem" aria-selected="false"><span class="YDXeBa-slot" data-slot="s4"></span><span class="YDXeBa-title">文献综述整理（第 3 章）</span><span class="YDXeBa-time">周一</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s5" role="treeitem" aria-selected="false"><span class="YDXeBa-slot" data-slot="s5"></span><span class="YDXeBa-title">实验数据复核</span><span class="YDXeBa-time">周一</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s6" role="treeitem" aria-selected="false"><span class="YDXeBa-slot" data-slot="s6"></span><span class="YDXeBa-title">投稿系统填表清单</span><span class="YDXeBa-time">上周</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s7" role="treeitem" aria-selected="false"><span class="YDXeBa-slot" data-slot="s7"></span><span class="YDXeBa-title">日语听力练习计划</span><span class="YDXeBa-time">9月25日</span></div>
+        <div class="YDXeBa-sessionRow" data-row-key="session:s8" role="treeitem" aria-selected="false"><span class="YDXeBa-slot" data-slot="s8"></span><span class="YDXeBa-title">没打标记的对话（应为原样）</span><span class="YDXeBa-time">上周</span></div>
+      </div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div class="bar" id="report">running…</div>
+      <div class="legend">
+        s1 蓝 10% 淡色底 + 行尾圆点（默认形状）· s2 灰蓝 8% + 标题左侧圆点 · s3 运行中（状态点占格，淡色底照常）·
+        s4 红 16% + 两侧圆点 + 15px 字号 · s5 绿 22% 只有淡色底 · s6 <b>自定义色号 #e11d48</b> 12% + 行尾圆点 · s7 只改字号（16px）· s8 未标记
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+if (new URLSearchParams(location.search).get('theme') === 'dark') document.body.setAttribute('data-ds-dark-theme', '');
+else document.body.removeAttribute('data-ds-dark-theme');
+
+// ---------------------------------------------------------------- React shim
+var ReactShim = {
+  createElement: function (type, props, children) {
+    if (typeof type === 'function') return type(Object.assign({}, props, { children: children }));
+    var node = document.createElement(type);
+    Object.keys(props || {}).forEach(function (key) {
+      if (key === 'className') node.className = props[key];
+      else if (key === 'children' || props[key] === undefined) { /* skip */ }
+      else if (key.indexOf('data-') === 0) node.setAttribute(key, props[key]);
+      else if (key === 'style') Object.keys(props[key]).forEach(function (k) { node.style[k] = props[key][k]; });
+      else node[key] = props[key];
+    });
+    if (children !== undefined && children !== null) node.textContent = String(children);
+    return node;
+  },
+  useState: function (init) { return [init, function () {}]; },
+  useEffect: function (fn) { var d = fn(); return d; }
+};
+
+var registeredModules = {};
+window.__ModuleLoader__ = { load: function (entry) { registeredModules[entry.id] = entry; } };
+</script>
+<script src="../lib/client.js"></script>
+<script>
+var report = [];
+function line(s) { report.push(s); document.getElementById('report').textContent = report.join('\n'); }
+
+var entry = registeredModules['dsh-sidebar-marks'];
+line('⓪ __ModuleLoader__ 注册 id = ' + (entry ? entry.id : '（缺失！）'));
+var plugin = entry.factory(function (name) {
+  if (name === 'react') return ReactShim;
+  if (name === '@deepseek-ai/dsh-client-ui-primitives') return { MenuItemButton: function (p) { return ReactShim.createElement('button', {}, p.children); } };
+  throw new Error('unexpected require ' + name);
+});
+line('① factory：apply=' + typeof plugin.apply + '，inject=' + JSON.stringify(plugin.inject));
+
+var components = {};
+plugin.apply({
+  slots: {
+    inject: function (name, cb) { return cb(); },
+    register: function (o, c) { components[o.name] = c; return function () {}; }
+  },
+  effect: function (fn) { fn(); return function () {}; }
+});
+line('② 已注册插槽：' + Object.keys(components).join(' ｜ '));
+line('③ 注入样式表：' + (document.querySelector('style[data-plugin-css="dsh-sidebar-marks/style"]') ? '已注入且带 data-plugin 标记' : '缺失！'));
+line('④ 全局句柄：window.__dshSidebarMarks 存在，快捷键 ' + window.__dshSidebarMarks.hotkey);
+
+var M = window.__dshSidebarMarks;
+M.set('s1', { color: 'blue',  fill: 10, dots: 'right', size: 'inherit' });
+M.set('s2', { color: 'slate', fill: 8,  dots: 'left',  size: 'inherit' });
+M.set('s3', { color: 'amber', fill: 10, dots: 'right', size: 'inherit' });
+M.set('s4', { color: 'red',   fill: 16, dots: 'both',  size: 'l' });
+M.set('s5', { color: 'green', fill: 22, dots: 'none',  size: 'inherit' });
+M.set('s6', { color: '#e11d48', fill: 12, dots: 'right', size: 'inherit' });   // 自定义色号
+M.set('s7', { size: 'xl' });
+
+['s1', 's2', 's4'].forEach(function (id) {
+  var slot = document.querySelector('[data-slot="' + id + '"]');
+  if (!slot) return;
+  var node = ReactShim.createElement(components['sidebar.session.row.leading'], { sessionId: id });
+  if (node) slot.appendChild(node);
+});
+
+setTimeout(function () {
+  var rows = document.querySelectorAll('[data-row-key^="session:"]');
+  var annotated = 0, leftDots = 0, untouched = 0;
+  rows.forEach(function (r) {
+    if (r.getAttribute('data-dshmk')) annotated += 1; else untouched += 1;
+    leftDots += r.querySelectorAll('.dshmk-dot').length;
+  });
+  line('⑤ 被标注的行 ' + annotated + ' / ' + rows.length + '，保持原样的行 ' + untouched + '，左侧圆点 ' + leftDots);
+
+  var s1 = document.querySelector('[data-row-key="session:s1"]');
+  var cs1 = getComputedStyle(s1);
+  line('⑥ 淡色底（s1，10%）：--dshmk-mix=' + cs1.getPropertyValue('--dshmk-mix').trim() +
+       '，--dshmk-mix-dark=' + cs1.getPropertyValue('--dshmk-mix-dark').trim() +
+       '，background-image=' + cs1.backgroundImage.slice(0, 66) + '…');
+  line('⑦ 深色加强（s4，16%）：浅色档 ' + getComputedStyle(document.querySelector('[data-row-key="session:s4"]')).getPropertyValue('--dshmk-mix').trim() +
+       ' / 深色档 ' + getComputedStyle(document.querySelector('[data-row-key="session:s4"]')).getPropertyValue('--dshmk-mix-dark').trim());
+  line('⑧ 只有圆点（s6）：padding-right=' + getComputedStyle(document.querySelector('[data-row-key="session:s6"]')).paddingRight +
+       '，background-image=' + getComputedStyle(document.querySelector('[data-row-key="session:s6"]')).backgroundImage.slice(0, 46) + '…');
+  line('⑨ 只有淡色底（s5）：padding-right=' + getComputedStyle(document.querySelector('[data-row-key="session:s5"]')).paddingRight +
+       '，未标记的 s8 padding-right=' + getComputedStyle(document.querySelector('[data-row-key="session:s8"]')).paddingRight);
+  line('⑩ 字号：s4 标题 ' + getComputedStyle(document.querySelector('[data-row-key="session:s4"] .YDXeBa-title')).fontSize +
+       '，s7 标题 ' + getComputedStyle(document.querySelector('[data-row-key="session:s7"] .YDXeBa-title')).fontSize +
+       '，未标记的 s8 标题 ' + getComputedStyle(document.querySelector('[data-row-key="session:s8"] .YDXeBa-title')).fontSize);
+  line('⑪ 运行中的 s3：左侧圆点 ' + document.querySelector('[data-row-key="session:s3"]').querySelectorAll('.dshmk-dot').length +
+       ' 个，淡色底 = ' + document.querySelector('[data-row-key="session:s3"]').getAttribute('data-dshmk-fill') + '（自动降级但标记仍在）');
+  line('⑫ 未标记的 s8：data-dshmk=' + document.querySelector('[data-row-key="session:s8"]').getAttribute('data-dshmk') + '（null = 一个字节都没碰）');
+  var c6 = document.querySelector('[data-row-key="session:s6"]');
+  line('⑬ 自定义色号（s6）：data-dshmk-color=' + c6.getAttribute('data-dshmk-color') +
+       '，浅色=' + getComputedStyle(c6).getPropertyValue('--dshmk-color-light').trim() +
+       '，深色自动提亮为 ' + getComputedStyle(c6).getPropertyValue('--dshmk-color-dark').trim());
+
+  var params = new URLSearchParams(location.search);
+  if (params.get('panel')) {
+    M.open('s1', '侧边栏对话标记插件设计');
+    var label = [...document.querySelectorAll('.dshmk-panel label')].map(function (l) { return l.textContent; }).join(' / ');
+    line('⑬ 已打开标记面板；字段 = ' + label);
+  }
+  window.__harnessDone = true;
+}, 400);
+</script>
+</body>
+</html>

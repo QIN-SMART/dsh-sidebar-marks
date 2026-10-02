@@ -1,0 +1,12 @@
+# dsh-sidebar-marks — host plugin insertion.
+#
+# The host half is deliberately inert: all behaviour lives in the browser half
+# (lib/client.js). This row exists so the package is an ENABLED Loader entry,
+# which is what makes the host-side client-modules scanner publish
+# `exports["./client"]` to the browser as a module.
+#
+# The entry id is also the namespace a future host-side persistence upgrade
+# would use (`ctx.configForms.get('sidebar-marks')`); keep it stable.
+- insert:
+    - id: sidebar-marks
+      name: dsh-sidebar-marks
